@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Selection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Select Your Service</h1>
+        <button onclick="selectService(1)">Bursary 1</button>
+        <button onclick="selectService(2)">Bursary 2</button>
+        <button onclick="selectService(3)">Student Service 1</button>
+        <button onclick="selectService(4)">Student Service 2</button>
+    </div>
+
+    <script>
+        function selectService(serviceNumber) {
+            localStorage.setItem('serviceNumber', serviceNumber);
+            window.location.href = 'ticket.html';
+        }
+    </script>
+</body>
+</html>

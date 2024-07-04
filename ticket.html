@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Your Ticket</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Get Your Ticket</h1>
+        <p id="service_info"></p>
+        <button onclick="getTicket()">Get Ticket</button>
+    </div>
+
+    <!-- Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="ticket_message"></p>
+        </div>
+    </div>
+
+    <script>
+        let serviceNumber = 1; // Default service number
+
+        document.addEventListener('DOMContentLoaded', () => {
+            serviceNumber = localStorage.getItem('serviceNumber');
+            document.getElementById('service_info').innerText = 'Selected Service: ' + serviceNumber;
+        });
+
+        function getTicket() {
+            fetch('/get_ticket?service=' + serviceNumber)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ticket_number) {
+                        document.getElementById('ticket_message').innerHTML = 
+                            'Your Ticket Number: ' + data.ticket_number + '<br>Please take a screenshot of this page.';
+                        showModal();
+                    } else {
+                        document.getElementById('ticket_message').innerText = 'Error: ' + data.error;
+                        showModal();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function showModal() {
+            var modal = document.getElementById("ticketModal");
+            var span = document.getElementsByClassName("close")[0];
+            
+            modal.style.display = "block";
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

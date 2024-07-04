@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets for Student service</title>
+    <link rel="stylesheet" href="worker_style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tickets for Student service</h1>
+        <table id="tickets_table">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Current Ticket Number</th>
+                    <th>Next Ticket Number</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tickets_body">
+                <!-- Ticket numbers will be populated here -->
+            </tbody>
+        </table>
+        <p id="next_ticket_info"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchTickets();
+            // Set up polling to fetch tickets every 5 seconds
+            setInterval(fetchTickets, 5000);
+        });
+
+        function fetchTickets() {
+            fetch('/get_all_tickets')
+                .then(response => response.json())
+                .then(data => {
+                    const currentTickets = data.current_tickets;
+                    const nextTickets = data.next_tickets;
+                    const serviceNames = data.service_names;
+                    const tableBody = document.getElementById('tickets_body');
+                    tableBody.innerHTML = '';
+
+                    [3, 4].forEach(service => {
+                        const row = document.createElement('tr');
+                        const serviceCell = document.createElement('td');
+                        const currentTicketCell = document.createElement('td');
+                        const nextTicketCell = document.createElement('td');
+                        const actionCell = document.createElement('td');
+                        const nextTicketButton = document.createElement('button');
+
+                        serviceCell.textContent = serviceNames[service];
+                        currentTicketCell.textContent = currentTickets[service] || 'N/A';
+                        nextTicketCell.textContent = nextTickets[service] || 'N/A';
+
+                        nextTicketButton.textContent = 'Complete Service';
+                        nextTicketButton.onclick = () => completeService(service);
+                        
+                        actionCell.appendChild(nextTicketButton);
+
+                        row.appendChild(serviceCell);
+                        row.appendChild(currentTicketCell);
+                        row.appendChild(nextTicketCell);
+                        row.appendChild(actionCell);
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching ticket numbers:', error);
+                });
+        }
+
+        function completeService(serviceNumber) {
+            fetch('/complete_service?service=' + serviceNumber)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchTickets();
+                    } else {
+                        document.getElementById('next_ticket_info').textContent = data.error;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+</html>
